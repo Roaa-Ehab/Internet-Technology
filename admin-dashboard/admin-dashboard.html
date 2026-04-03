@@ -1,0 +1,535 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Environmental and Community Service Sector Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --must-primary: #1A3668;
+      --must-secondary: #008C45;
+      --must-bg: #f3f6fb;
+      --must-card: #ffffff;
+      --must-border: #dfe7f2;
+      --must-muted: #6b7280;
+      --must-shadow: 0 18px 40px rgba(26,54,104,.08);
+      --must-soft: #eef4fb;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Montserrat', system-ui, sans-serif; background: linear-gradient(180deg, #f7faff 0%, #eef3fa 100%); color: #1f2937; }
+    .auth-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: radial-gradient(circle at top right, rgba(0,140,69,.16), transparent 28%), linear-gradient(135deg, #102749 0%, #1A3668 62%, #0f2342 100%); z-index: 1000; }
+    .auth-screen.hidden { display: none; }
+    .auth-card { width: min(100%, 430px); background: rgba(255,255,255,.97); border-radius: 22px; padding: 1.5rem; box-shadow: 0 30px 80px rgba(0,0,0,.24); border: 1px solid rgba(255,255,255,.25); }
+    .auth-logo { width: 78px; height: 78px; object-fit: contain; background: #fff; border-radius: 18px; padding: 8px; border: 1px solid var(--must-border); }
+    .auth-input { width: 100%; padding: .95rem 1rem; border-radius: 14px; border: 1px solid var(--must-border); outline: none; }
+    .auth-input:focus { border-color: var(--must-primary); box-shadow: 0 0 0 4px rgba(26,54,104,.08); }
+    .auth-error { display: none; color: #b42318; background: #fef3f2; border: 1px solid #fecdca; border-radius: 14px; padding: .8rem .9rem; font-size: .92rem; }
+    .layout { display: none; min-height: 100vh; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; width: 282px; background: linear-gradient(180deg, #17305c 0%, #1A3668 58%, #102749 100%); color: #fff; padding: 1.25rem; box-shadow: var(--must-shadow); overflow-y: auto; }
+    .brand { display: flex; gap: .9rem; align-items: center; padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,.12); }
+    .brand img { width: 58px; height: 58px; object-fit: contain; background: #fff; border-radius: 16px; padding: 6px; }
+    .brand h1 { font-size: 1rem; margin: 0; line-height: 1.25; }
+    .brand p { margin: .2rem 0 0; font-size: .84rem; color: rgba(255,255,255,.74); }
+    .nav-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.55); margin: 1.15rem 0 .55rem; }
+    .nav-item-custom { display: flex; align-items: center; gap: .75rem; padding: .8rem .9rem; border-radius: 14px; color: rgba(255,255,255,.88); text-decoration: none; margin-bottom: .35rem; }
+    .nav-item-custom.active, .nav-item-custom:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .sidebar-note { margin-top: 1.2rem; background: rgba(255,255,255,.08); border-radius: 20px; padding: 1rem; border: 1px solid rgba(255,255,255,.09); }
+    .main { margin-left: 282px; padding: 1.3rem; }
+    .topbar { position: sticky; top: 1rem; z-index: 20; display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 1rem 1.2rem; background: rgba(255,255,255,.92); border-radius: 22px; border: 1px solid var(--must-border); box-shadow: var(--must-shadow); backdrop-filter: blur(12px); margin-bottom: 1.2rem; }
+    .panel { background: var(--must-card); border: 1px solid var(--must-border); border-radius: 18px; box-shadow: var(--must-shadow); padding: 1.2rem; height: 100%; }
+    .hero-panel { background: linear-gradient(135deg, rgba(26,54,104,1) 0%, rgba(26,54,104,.93) 60%, rgba(0,140,69,.9) 100%); color: #fff; position: relative; overflow: hidden; }
+    .hero-panel::after { content: ''; position: absolute; right: -72px; top: -92px; width: 260px; height: 260px; border-radius: 50%; background: rgba(255,255,255,.08); }
+    .hero-panel p, .hero-panel .small-soft { color: rgba(255,255,255,.82); }
+    .metric { border: 1px solid var(--must-border); border-radius: 16px; padding: 1rem; background: linear-gradient(180deg, #fff, #fbfdff); }
+    .metric .icon { width: 50px; height: 50px; display: inline-flex; align-items: center; justify-content: center; border-radius: 16px; background: rgba(26,54,104,.08); color: var(--must-primary); font-size: 1.3rem; }
+    .metric h3 { font-size: 1.9rem; margin: .75rem 0 .2rem; }
+    .muted { color: var(--must-muted); }
+    .status-pill { display: inline-flex; align-items: center; gap: .45rem; padding: .45rem .82rem; border-radius: 999px; font-weight: 600; font-size: .84rem; border: 1px solid transparent; }
+    .status-pill.good { background: #e7f5ec; color: #0f7a3f; border-color: #cde9d7; }
+    .status-pill.warn { background: #fff4df; color: #b7791f; border-color: #f3dfb5; }
+    .section-title { font-size: 1.05rem; font-weight: 700; margin-bottom: .85rem; }
+    .btn-must { background: var(--must-secondary); color: #fff; border: 0; border-radius: 14px; padding: .8rem 1rem; font-weight: 600; }
+    .btn-must:hover { background: #05753c; color: #fff; }
+    .btn-soft { background: var(--must-soft); color: var(--must-primary); border: 1px solid var(--must-border); border-radius: 14px; padding: .8rem 1rem; font-weight: 600; }
+    .grid-two { display: grid; grid-template-columns: minmax(330px, 430px) minmax(0, 1fr); gap: 1.2rem; align-items: start; }
+    .editor-card { border: 1px solid var(--must-border); border-radius: 18px; background: linear-gradient(180deg, #fff, #fbfdff); overflow: hidden; }
+    .editor-header { padding: 1rem 1.1rem; border-bottom: 1px solid #eef3f8; }
+    .editor-body { padding: 1.1rem; }
+    .manager-form .form-control, .manager-form textarea { border-radius: 14px; border: 1px solid var(--must-border); padding: .8rem .95rem; }
+    .manager-form .form-control:focus, .manager-form textarea:focus { border-color: var(--must-primary); box-shadow: 0 0 0 4px rgba(26,54,104,.08); }
+    .stats-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .85rem; margin-bottom: 1rem; }
+    .mini-stat { border: 1px solid var(--must-border); border-radius: 18px; padding: .95rem 1rem; background: #fff; }
+    .mini-stat strong { display: block; color: var(--must-primary); font-size: 1.15rem; }
+    .item-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .content-card { border: 1px solid var(--must-border); border-radius: 22px; padding: 1rem; background: linear-gradient(180deg, #fff, #fbfdff); height: 100%; }
+    .content-card .summary { color: var(--must-muted); font-size: .93rem; line-height: 1.55; min-height: 66px; }
+    .content-card .card-foot { display: flex; justify-content: space-between; align-items: center; gap: .6rem; border-top: 1px solid #eef3f8; padding-top: .85rem; margin-top: .9rem; }
+    .date-box { width: 62px; min-width: 62px; border-radius: 18px; background: #edf3fb; color: var(--must-primary); text-align: center; padding: .55rem .25rem; font-weight: 700; }
+    .empty-state { border: 1px dashed var(--must-border); border-radius: 18px; padding: 2rem 1rem; text-align: center; color: var(--must-muted); background: #fbfdff; grid-column: 1 / -1; }
+    .sticky-box { position: sticky; top: 6.3rem; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: .8rem; flex-wrap: wrap; margin-bottom: .9rem; }
+    .helper { background: #f8fbff; border: 1px dashed var(--must-border); color: var(--must-muted); border-radius: 18px; padding: .95rem 1rem; }
+    @media (max-width: 1199.98px) { .grid-two { grid-template-columns: 1fr; } .sticky-box { position: static; } }
+    @media (max-width: 991.98px) { .sidebar { position: static; width: 100%; border-radius: 0 0 24px 24px; } .main { margin-left: 0; } .topbar { position: static; } .stats-row, .item-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <img src="assets/logo.jpg" alt="MUST logo" class="auth-logo">
+        <div>
+          <div class="text-uppercase small fw-semibold" style="letter-spacing:.08em;color:#6b7280;">Protected access</div>
+          <h2 class="h4 mb-1">Sector Content Dashboard</h2>
+          <p class="mb-0 muted">Use the password to manage the website content.</p>
+        </div>
+      </div>
+      <form id="loginForm">
+        <label for="passwordInput" class="form-label fw-semibold">Password</label>
+        <input id="passwordInput" class="auth-input" type="password" placeholder="Enter password" autocomplete="current-password">
+        <div id="authError" class="auth-error mt-3">Incorrect password. Try again.</div>
+        <div class="d-grid mt-4"><button class="btn btn-must" type="submit">Unlock dashboard</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="layout" id="dashboardLayout">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="assets/logo.jpg" alt="MUST logo">
+        <div>
+          <h1>Misr University for Science and Technology</h1>
+          <p>Environmental and Community Service Sector</p>
+        </div>
+      </div>
+      <div class="nav-label">Main</div>
+      <a class="nav-item-custom active" href="#overview"><i class="bi bi-grid-1x2-fill"></i> Overview</a>
+      <a class="nav-item-custom" href="#newsManager"><i class="bi bi-newspaper"></i> News manager</a>
+      <a class="nav-item-custom" href="#eventsManager"><i class="bi bi-calendar2-event-fill"></i> Events manager</a>
+      <a class="nav-item-custom" href="/website/index.html" target="_blank"><i class="bi bi-box-arrow-up-right"></i> Open website</a>
+      <div class="nav-label">Usage</div>
+      <a class="nav-item-custom" href="#howTo"><i class="bi bi-info-circle-fill"></i> How it works</a>
+      <div class="sidebar-note">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong>Connected file</strong>
+          <span class="status-pill warn" id="connectionBadge"><i class="bi bi-wifi-off"></i> Checking</span>
+        </div>
+        <div class="small text-white-50" id="fileLabel">website/index.html</div>
+        <div class="small text-white-50 mt-2">All publish actions update the real website file inside this package so the dashboard stays aligned with the site design.</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="muted small">Environmental and Community Service Sector</div>
+          <h2 class="h4 mb-0">Manage Sector News and Events</h2>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+          <span class="status-pill warn" id="saveState"><i class="bi bi-hourglass-split"></i> Loading</span>
+          <button class="btn btn-soft" id="refreshBtn"><i class="bi bi-arrow-clockwise me-1"></i> Reload</button>
+          <button class="btn btn-soft" id="openWebsiteBtn"><i class="bi bi-box-arrow-up-right me-1"></i> View site</button>
+          <button class="btn btn-must" id="publishBtn"><i class="bi bi-cloud-upload me-1"></i> Publish changes</button>
+          <button class="btn btn-soft" id="logoutBtn"><i class="bi bi-box-arrow-right me-1"></i> Logout</button>
+        </div>
+      </div>
+
+      <div class="row g-4" id="overview">
+        <div class="col-12 col-xxl-8">
+          <section class="panel hero-panel">
+            <div class="row align-items-center g-4 position-relative">
+              <div class="col-lg-8">
+                <div class="small-soft">Website dashboard</div>
+                <h3 class="display-6 fw-bold mt-2">Edit the website content in the same MUST visual style</h3>
+                <p class="mt-3 mb-4">This version is connected to <strong>website/index.html</strong>. Manage the exact news and events blocks used on the sector website, then publish to update the live cards on the website package.</p>
+                <div class="d-flex gap-2 flex-wrap">
+                  <a href="#newsManager" class="btn btn-light text-primary fw-semibold px-4">Manage news</a>
+                  <a href="#eventsManager" class="btn btn-outline-light fw-semibold px-4">Manage events</a>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="panel border-0 h-100" style="background: rgba(255,255,255,.12); color:#fff;">
+                  <div class="small text-white-50">Target file</div>
+                  <div class="h5 mt-2 mb-1">website/index.html</div>
+                  <div class="small text-white-50 mb-3">Dashboard updates only the managed News and Upcoming Events blocks.</div>
+                  <div class="helper" style="background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.14); color: rgba(255,255,255,.82);">Run <strong>python server.py</strong>, open this dashboard, then click publish after making changes.</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="col-12 col-xxl-4">
+          <section class="panel h-100" id="howTo">
+            <div class="section-title">How it works</div>
+            <div class="helper mb-3">1. Start the local server.<br>2. Open the dashboard.<br>3. Add or remove items.<br>4. Publish changes.<br>5. Refresh the website page to see the update.</div>
+            <div class="helper">If the dashboard shows a connection error, make sure you opened it from <strong>http://127.0.0.1:8000</strong> and not by double-clicking the HTML file.</div>
+          </section>
+        </div>
+        <div class="col-sm-6 col-xl-3"><section class="metric"><div class="icon"><i class="bi bi-newspaper"></i></div><h3 id="newsCount">0</h3><div class="fw-semibold">News items</div><div class="muted small">Shown on index.html</div></section></div>
+        <div class="col-sm-6 col-xl-3"><section class="metric"><div class="icon"><i class="bi bi-calendar-week"></i></div><h3 id="eventsCount">0</h3><div class="fw-semibold">Upcoming events</div><div class="muted small">Shown on index.html</div></section></div>
+        <div class="col-sm-6 col-xl-3"><section class="metric"><div class="icon"><i class="bi bi-check2-square"></i></div><h3 id="dirtyCount">0</h3><div class="fw-semibold">Unsaved changes</div><div class="muted small">Publish when ready</div></section></div>
+        <div class="col-sm-6 col-xl-3"><section class="metric"><div class="icon"><i class="bi bi-file-earmark-text"></i></div><h3>1</h3><div class="fw-semibold">Managed file</div><div class="muted small">website/index.html</div></section></div>
+
+        <div class="col-12" id="newsManager">
+          <section class="panel">
+            <div class="toolbar">
+              <div>
+                <div class="section-title mb-1">News Manager</div>
+                <div class="muted small">Add or remove cards that appear in the Related News section of index.html.</div>
+              </div>
+              <span class="status-pill good"><i class="bi bi-link-45deg"></i> Styled for website news</span>
+            </div>
+            <div class="stats-row">
+              <div class="mini-stat"><span class="muted small">Visible cards</span><strong id="newsMiniCount">0</strong><span class="muted small">news cards on the website</span></div>
+              <div class="mini-stat"><span class="muted small">Card style</span><strong>Date badge</strong><span class="muted small">matches the current homepage design</span></div>
+              <div class="mini-stat"><span class="muted small">Publish target</span><strong>index.html</strong><span class="muted small">saved directly by the local server</span></div>
+            </div>
+            <div class="grid-two">
+              <div class="sticky-box">
+                <div class="editor-card">
+                  <div class="editor-header"><h3 class="h5 mb-1">Manage news item</h3><div class="muted small">Create a new card for the Related News section.</div></div>
+                  <div class="editor-body">
+                    <form id="newsForm" class="manager-form">
+                      <div class="mb-3">
+                          <label class="form-label fw-semibold">Badge text</label>
+                          <input id="newsBadge" class="form-control" placeholder="Example: 9 March 2026" required>
+                      </div>
+                      <div class="mb-3">
+                          <label class="form-label fw-semibold">News title</label>
+                          <input id="newsTitle" class="form-control" placeholder="Enter the news title" required>
+                      </div>
+                      <div class="mb-3">
+                          <label class="form-label fw-semibold">Image URL / Path</label>
+                          <input id="newsImageUrl" class="form-control" placeholder="images/awards2.jpg">
+                      </div>
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Link text</label>
+                            <input id="newsLinkText" class="form-control" value="Read more">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Link URL</label>
+                            <input id="newsLinkUrl" class="form-control" value="#">
+                        </div>
+                      </div>
+                      <div class="d-flex gap-2 flex-wrap mt-4">
+                        <button class="btn btn-must flex-grow-1" type="submit">Manage news</button>
+                        <button class="btn btn-soft" type="reset">Clear</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="editor-card">
+                  <div class="editor-header"><div class="toolbar mb-0"><div><h3 class="h5 mb-1">Current news cards</h3><div class="muted small">Remove any item you no longer want to show on the homepage.</div></div><button class="btn btn-soft btn-sm" id="reloadNewsBtn" type="button">Reload from file</button></div></div>
+                  <div class="editor-body"><div id="newsList" class="item-grid"></div></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="col-12" id="eventsManager">
+          <section class="panel">
+            <div class="toolbar">
+              <div>
+                <div class="section-title mb-1">Upcoming Events Manager</div>
+                <div class="muted small">Manage the event cards shown in the Upcoming Events section of index.html.</div>
+              </div>
+              <span class="status-pill good"><i class="bi bi-calendar-check"></i> Styled for website events</span>
+            </div>
+            <div class="stats-row">
+              <div class="mini-stat"><span class="muted small">Visible events</span><strong id="eventsMiniCount">0</strong><span class="muted small">event cards on the website</span></div>
+              <div class="mini-stat"><span class="muted small">Layout style</span><strong>Date panel</strong><span class="muted small">same style as current event cards</span></div>
+              <div class="mini-stat"><span class="muted small">Publishing</span><strong>Manual save</strong><span class="muted small">click Publish changes when finished</span></div>
+            </div>
+            <div class="grid-two">
+              <div class="sticky-box">
+                <div class="editor-card">
+                  <div class="editor-header"><h3 class="h5 mb-1">Manage events</h3><div class="muted small">Create a new Upcoming Events card.</div></div>
+                  <div class="editor-body">
+                    <form id="eventForm" class="manager-form">
+                      <div class="row g-3 mb-3">
+                        <div class="col-md-4"><label class="form-label fw-semibold">Day</label><input id="eventDay" class="form-control" placeholder="15" required></div>
+                        <div class="col-md-8"><label class="form-label fw-semibold">Month / year</label><input id="eventMonthYear" class="form-control" placeholder="Mar 2026" required></div>
+                      </div>
+                      <div class="mb-3"><label class="form-label fw-semibold">Event title</label><input id="eventTitle" class="form-control" placeholder="Enter the event title" required></div>
+                      <div class="mb-3"><label class="form-label fw-semibold">Image URL / Path</label><input id="eventImageUrl" class="form-control" placeholder="images/photo.jpg"></div>
+                      <div class="mb-3"><label class="form-label fw-semibold">Summary</label><textarea id="eventSummary" class="form-control" rows="5" placeholder="Short event description" required></textarea></div>
+                      
+                      <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Link text</label>
+                            <input id="eventLinkText" class="form-control" value="Register Now">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Link URL</label>
+                            <input id="eventLinkUrl" class="form-control" value="#">
+                        </div>
+                      </div>
+
+                      <div class="d-flex gap-2 flex-wrap mt-4">
+                        <button class="btn btn-must flex-grow-1" type="submit">Manage events</button>
+                        <button class="btn btn-soft" type="reset">Clear</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="editor-card">
+                  <div class="editor-header"><div class="toolbar mb-0"><div><h3 class="h5 mb-1">Current event cards</h3><div class="muted small">Remove any event you no longer want on the homepage.</div></div><button class="btn btn-soft btn-sm" id="reloadEventsBtn" type="button">Reload from file</button></div></div>
+                  <div class="editor-body"><div id="eventsList" class="item-grid"></div></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const DASHBOARD_PASSWORD = "mustadmin2026";
+    const AUTH_KEY = 'must_connected_dashboard_auth';
+    const API_URL = '/api/content';
+
+    const authScreen = document.getElementById('authScreen');
+    const dashboardLayout = document.getElementById('dashboardLayout');
+    const loginForm = document.getElementById('loginForm');
+    const passwordInput = document.getElementById('passwordInput');
+    const authError = document.getElementById('authError');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const publishBtn = document.getElementById('publishBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const openWebsiteBtn = document.getElementById('openWebsiteBtn');
+    const saveState = document.getElementById('saveState');
+    const connectionBadge = document.getElementById('connectionBadge');
+    const newsForm = document.getElementById('newsForm');
+    const eventForm = document.getElementById('eventForm');
+    const reloadNewsBtn = document.getElementById('reloadNewsBtn');
+    const reloadEventsBtn = document.getElementById('reloadEventsBtn');
+
+    const state = { news: [], events: [], dirty: 0, connected: false };
+
+    function showDashboard() {
+      authScreen.classList.add('hidden');
+      dashboardLayout.style.display = 'block';
+      authError.style.display = 'none';
+      passwordInput.value = '';
+      loadContent();
+    }
+
+    function showLogin() {
+      authScreen.classList.remove('hidden');
+      dashboardLayout.style.display = 'none';
+    }
+
+    function setSaveState(type, text) {
+      saveState.className = 'status-pill ' + (type === 'good' ? 'good' : 'warn');
+      saveState.innerHTML = `<i class="bi ${type === 'good' ? 'bi-check-circle-fill' : 'bi-hourglass-split'}"></i> ${text}`;
+    }
+
+    function setConnection(ok) {
+      state.connected = ok;
+      connectionBadge.className = 'status-pill ' + (ok ? 'good' : 'warn');
+      connectionBadge.innerHTML = ok ? '<i class="bi bi-wifi"></i> Connected' : '<i class="bi bi-wifi-off"></i> Offline';
+    }
+
+    function markDirty() {
+      state.dirty += 1;
+      document.getElementById('dirtyCount').textContent = state.dirty;
+      setSaveState('warn', 'Unsaved changes');
+    }
+
+    function resetDirty() {
+      state.dirty = 0;
+      document.getElementById('dirtyCount').textContent = '0';
+      setSaveState('good', 'Saved to index.html');
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderNews() {
+      document.getElementById('newsCount').textContent = state.news.length;
+      document.getElementById('newsMiniCount').textContent = state.news.length;
+      const list = document.getElementById('newsList');
+      if (!state.news.length) {
+        list.innerHTML = '<div class="empty-state"><i class="bi bi-newspaper fs-3 d-block mb-2"></i>No news items yet.</div>';
+        return;
+      }
+      list.innerHTML = state.news.map(item => `
+        <article class="content-card">
+          <div class="d-flex gap-2 flex-wrap mb-2"><span class="status-pill good">${escapeHtml(item.badge)}</span></div>
+          <h4 class="h6 mb-2">${escapeHtml(item.title)}</h4>
+          <div class="small muted mt-2">${escapeHtml(item.linkText || 'Read more')} → ${escapeHtml(item.linkUrl || '#')}</div>
+          <div class="card-foot"><span class="muted small">Homepage news card</span><button class="btn btn-outline-danger btn-sm rounded-pill px-3" type="button" onclick="deleteNewsItem(${item.id})">Remove</button></div>
+        </article>
+      `).join('');
+    }
+
+    function renderEvents() {
+      document.getElementById('eventsCount').textContent = state.events.length;
+      document.getElementById('eventsMiniCount').textContent = state.events.length;
+      const list = document.getElementById('eventsList');
+      if (!state.events.length) {
+        list.innerHTML = '<div class="empty-state"><i class="bi bi-calendar2-event fs-3 d-block mb-2"></i>No upcoming events yet.</div>';
+        return;
+      }
+      list.innerHTML = state.events.map(item => `
+        <article class="content-card">
+          <div class="d-flex gap-3 align-items-start">
+            <div class="date-box"><div>${escapeHtml(item.day)}</div><small>${escapeHtml(item.monthYear)}</small></div>
+            <div>
+              <h4 class="h6 mb-2">${escapeHtml(item.title)}</h4>
+              <div class="summary" style="min-height: 84px;">${escapeHtml(item.summary)}</div>
+            </div>
+          </div>
+          <div class="card-foot"><span class="muted small">Homepage event card</span><button class="btn btn-outline-danger btn-sm rounded-pill px-3" type="button" onclick="deleteEventItem(${item.id})">Remove</button></div>
+        </article>
+      `).join('');
+    }
+
+    function renderAll() { renderNews(); renderEvents(); }
+
+    async function loadContent() {
+      setSaveState('warn', 'Loading');
+      try {
+        const response = await fetch(API_URL, { cache: 'no-store' });
+        const data = await response.json();
+        if (!response.ok || !data.ok) throw new Error(data.error || 'Could not load content');
+        state.news = Array.isArray(data.news) ? data.news : [];
+        state.events = Array.isArray(data.events) ? data.events : [];
+        renderAll();
+        setConnection(true);
+        resetDirty();
+      } catch (error) {
+        console.error(error);
+        setConnection(false);
+        setSaveState('warn', 'Server not connected');
+      }
+    }
+
+    async function publishChanges() {
+      if (!state.connected) {
+        alert('The dashboard is not connected. Start server.py and open this page from http://127.0.0.1:8000');
+        return;
+      }
+      setSaveState('warn', 'Publishing');
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ news: state.news, events: state.events })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) throw new Error(data.error || 'Publish failed');
+        resetDirty();
+        alert('website/index.html was updated successfully. Refresh the website tab to see the changes.');
+      } catch (error) {
+        console.error(error);
+        setSaveState('warn', 'Publish failed');
+        alert('Could not publish changes. Make sure server.py is running.');
+      }
+    }
+
+    window.deleteNewsItem = function (id) {
+      state.news = state.news.filter(item => item.id !== id);
+      renderNews();
+      markDirty();
+    };
+
+    window.deleteEventItem = function (id) {
+      state.events = state.events.filter(item => item.id !== id);
+      renderEvents();
+      markDirty();
+    };
+
+    newsForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const item = {
+        id: Date.now(),
+        badge: document.getElementById('newsBadge').value.trim(),
+        title: document.getElementById('newsTitle').value.trim(),
+        linkText: document.getElementById('newsLinkText').value.trim() || 'Read more',
+        linkUrl: document.getElementById('newsLinkUrl').value.trim() || '#',
+        imageUrl: document.getElementById('newsImageUrl').value.trim() 
+      };
+      
+      // Removed the summary check here too
+      if (!item.badge || !item.title) return;
+      
+      state.news.unshift(item);
+      newsForm.reset();
+      document.getElementById('newsLinkText').value = 'Read more';
+      document.getElementById('newsLinkUrl').value = '#';
+      renderNews();
+      markDirty();
+    });
+
+    eventForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const item = {
+        id: Date.now(),
+        day: document.getElementById('eventDay').value.trim(),
+        monthYear: document.getElementById('eventMonthYear').value.trim(),
+        title: document.getElementById('eventTitle').value.trim(),
+        summary: document.getElementById('eventSummary').value.trim(),
+        imageUrl: document.getElementById('eventImageUrl').value.trim(),
+        linkText: document.getElementById('eventLinkText').value.trim() || 'Register Now',
+        linkUrl: document.getElementById('eventLinkUrl').value.trim() || '#'
+      };
+      
+      if (!item.day || !item.monthYear || !item.title || !item.summary) return;
+      
+      state.events.unshift(item);
+      eventForm.reset();
+      
+      document.getElementById('eventLinkText').value = 'Register Now';
+      document.getElementById('eventLinkUrl').value = '#';
+      
+      renderEvents();
+      markDirty();
+    });
+
+    publishBtn.addEventListener('click', publishChanges);
+    refreshBtn.addEventListener('click', loadContent);
+    reloadNewsBtn.addEventListener('click', loadContent);
+    reloadEventsBtn.addEventListener('click', loadContent);
+    openWebsiteBtn.addEventListener('click', function () { window.open('/website/index.html', '_blank'); });
+
+    loginForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (passwordInput.value === DASHBOARD_PASSWORD) {
+        localStorage.setItem(AUTH_KEY, 'true');
+        showDashboard();
+      } else {
+        authError.style.display = 'block';
+        passwordInput.select();
+      }
+    });
+
+    logoutBtn.addEventListener('click', function () {
+      localStorage.removeItem(AUTH_KEY);
+      showLogin();
+    });
+
+    if (localStorage.getItem(AUTH_KEY) === 'true') { showDashboard(); } else { showLogin(); }
+  </script>
+</body>
+</html>
